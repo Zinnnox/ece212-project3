@@ -18,6 +18,30 @@ module adc(
     */
     //Do not modify above this line
 
+    // ctrl output signals 
+    wire inc, clr, load;
+    // dp output signals
+    wire max;
+
+    adc_ctrl ctrl(
+        .clk(clk),
+        .start(start),
+        .comp(comp),
+        .max(max), 
+        .inc(inc),
+        .clr(clr),
+        .load(load)
+    );
+
+    adc_dp dp(
+        .clk(clk),
+        .inc(inc),
+        .clr(clr),
+        .load(load),
+        .dac(dac[4:0]),
+        .result(result[3:0]),
+        .max(max)
+    );
 
 
 endmodule

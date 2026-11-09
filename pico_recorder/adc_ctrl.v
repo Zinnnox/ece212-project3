@@ -29,6 +29,45 @@ module adc_ctrl(
     */
     //Do not modify above this line
 
+    localparam IDLE = 0, SETTLE = 1, INC = 2, DONE = 3;
+    reg [1:0] state = 0;
+    reg [1:0] next_state;
+
+    always @(posedge clk) begin
+        state <= next_state;
+    end
+
+    always @(*) begin
+        case (state)
+            IDLE: begin
+                if (start) next_state = SETTLE;
+                else next_state = IDLE;
+                inc = 0;
+                clr = 0;
+                load = 0;
+            end
+
+            SETTLE: begin
+                if (comp || max) next_state = DONE;
+                else if (comp == 0 && max == 0) next_state = INC;
+                inc = 0;
+                clr = 0;
+                load = 0;
+            end 
+
+            INC: begin
+                next_state = SETTLE;
+                inc = 1; 
+            end 
+            
+            DONE: begin
+                next_state = IDLE;
+                inc = 0;
+                clr = 1;
+                load = 1;
+            end
+        endcase
+    end
 
 
 endmodule

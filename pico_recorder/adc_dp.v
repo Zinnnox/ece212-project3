@@ -23,6 +23,20 @@ module adc_dp(
     */
     //Do not modify above this line
 
+    reg [4:0] temp_dac;
 
+    always @(posedge clk) begin
+        // temp_dac is used to hold the value of dac before it is cleared, so that
+        // result and max can be set to the correct value.
+        temp_dac <= dac;
+
+        if (load) result <= temp_dac[4:1];
+
+        if (clr) dac <= 0;
+        else if (inc) dac <= dac + 1;
+        
+        if (temp_dac == 5'b11111) max = 1;
+        else max = 0;
+    end
 
 endmodule
