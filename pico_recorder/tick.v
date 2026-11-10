@@ -13,6 +13,13 @@ module tick(
     */
     //Do not modify above this line
 
+    reg [6:0] counter = 7'd0;
 
+    assign tick = (counter == 7'd99);
+
+    always @(posedge clk) begin
+        if (counter >= 7'd99) counter <= 7'd0; 
+        else counter <= counter + 7'd1; 
+    end
 
 endmodule

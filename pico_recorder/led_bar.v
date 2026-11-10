@@ -22,6 +22,26 @@ module led_bar(
     */
     //Do not modify above this line
 
-
+    always @(*) begin
+        case (in)
+            4'd0: led = 8'b00000000;
+            4'd1: led = 8'b00000001;
+            4'd2: led = 8'b00000011;
+            4'd3: led = 8'b00000010;
+            4'd4: led = 8'b00000110;
+            4'd5: led = 8'b00000100;
+            4'd6: led = 8'b00001100;
+            4'd7: led = 8'b00001000;
+            4'd8: led = 8'b00011000;
+            4'd9: led = 8'b00010000;
+            4'd10: led = 8'b00110000;
+            4'd11: led = 8'b00100000;
+            4'd12: led = 8'b01100000;
+            4'd13: led = 8'b01000000;
+            4'd14: led = 8'b11000000;
+            4'd15: led = 8'b10000000;
+            default: led = 8'b00000000;
+        endcase
+    end
 
 endmodule

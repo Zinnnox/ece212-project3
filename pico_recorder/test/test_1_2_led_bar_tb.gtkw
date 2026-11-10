@@ -1,0 +1,12 @@
+[*] GTKWave display configuration for 'apio sim test/test_1_2_led_bar_tb.v'
+[*] THIS FILE WAS GENERATED AUTOMATICALLY BY APIO.
+[*] DO NOT EDIT IT MANUALLY!
+[*] To customize this file, run 'apio sim test/test_1_2_led_bar_tb.v'
+[*] and save the file from GTKWave.
+
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+
+[*]
+test_1_2_led_bar_tb.in[3:0]
+test_1_2_led_bar_tb.led[7:0]
+test_1_2_led_bar_tb.outfile[31:0]
