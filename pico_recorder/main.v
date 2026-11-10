@@ -51,6 +51,45 @@ module main(
     sevseg_disp disp(sevseg_in, sevseg_dp, seven_seg);
     //Do not modify above this line
 
+    // debounced record and play buttons
+    wire db_rec, db_play;
+    debounce db0(.clk(clk), .btn(btn[0]), .btn_db(db_rec));
+    debounce db1(.clk(clk), .btn(btn[1]), .btn_db(db_play));
 
+    // tick module
+    wire tick;
+    tick tick0(.clk(clk), .tick(tick));
 
+    // adc module
+    wire adc_start;
+    wire [3:0] adc_result;
+    assign adc_start = tick && !db_play;
+    adc adc0(
+        .clk(clk),
+        .start(adc_start),
+        .comp(),
+        .dac(),
+        .result(adc_result)
+    );
+
+    // recorder module 
+    recorder rec0(
+        .clk(clk),
+        .tick(tick),
+        .rec(),
+        .play(),
+        .bank(sw[1:0]),
+        .sample(adc_result),
+        .recording(),
+        .playing(),
+        .out()
+    );
+
+    // determine dac output, if playing then output the recorder's out, 
+    // otherwise output the adc's dac value.
+    always @(*) begin
+        if (rec0.playing) dac = {rec0.out, 1'b0};
+        else dac = adc0.dac;
+    end
+    
 endmodule
