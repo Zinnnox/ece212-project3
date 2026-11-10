@@ -47,6 +47,128 @@ module recorder(
     */
     //Do not modify above this line
 
+    reg bank0_we, bank1_we, bank2_we, bank3_we;
+    reg [3:0] bank0_out, bank1_out, bank2_out, bank3_out; 
+    reg [7:0] bank0_last, bank1_last, bank2_last, bank3_last;
+    reg [7:0] record_addr, play_addr;
 
+    initial begin
+        bank0_we = 0;
+        bank1_we = 0;
+        bank2_we = 0;
+        bank3_we = 0;
+        bank0_last = 0;
+        bank1_last = 0;
+        bank2_last = 0;
+        bank3_last = 0;
+        record_addr = 0;
+        play_addr = 0;
+    end
+
+    memory mem0(
+        .clk(clk),
+        .we(bank0_we),
+        .waddr(record_addr),
+        .wdata(sample),
+        .raddr(play_addr),
+        .rdata(bank0_out) 
+    );
+    memory mem1(
+        .clk(clk),
+        .we(bank1_we),
+        .waddr(record_addr),
+        .wdata(sample),
+        .raddr(play_addr),
+        .rdata(bank1_out) 
+    );
+    memory mem2(
+        .clk(clk),
+        .we(bank2_we),
+        .waddr(record_addr),
+        .wdata(sample),
+        .raddr(play_addr),
+        .rdata(bank2_out) 
+    );
+    memory mem3(
+        .clk(clk),
+        .we(bank3_we),
+        .waddr(record_addr),
+        .wdata(sample),
+        .raddr(play_addr),
+        .rdata(bank3_out) 
+    );
+
+    always @(posedge clk) begin
+        // recording takes priority over playback
+        if (rec) begin
+            // set playing and play address to 0 while recording
+            playing <= 0;
+            play_addr <= 0;
+
+            // recording is high while rec is high and the bank is not full.
+            if (record_addr < 8'd255) begin
+                recording <= 1;
+            end
+            else begin
+                recording <= 0;
+            end
+
+            // while rec, if tick and recording are high, write sample to current bank 
+            // and set that bank's last register to the record address.
+            if (tick && recording) begin
+                if (bank == 2'd0) begin
+                    bank0_we <= 1;
+                    bank0_last <= record_addr;
+                    out <= bank0_out;
+                end
+                if (bank == 2'd1) begin
+                    bank1_we <= 1;
+                    bank1_last <= record_addr;
+                    out <= bank1_out;
+                end
+                if (bank == 2'd2) begin
+                    bank2_we <= 1;
+                    bank2_last <= record_addr;
+                    out <= bank2_out;
+                end
+                if (bank == 2'd3) begin
+                    bank3_we <= 1;
+                    bank3_last <= record_addr;
+                    out <= bank3_out;
+                end
+            end
+
+            // while rec, if tick and recording are high, 
+            //increase the record address by 1, unless it is 255.
+            if (record_addr < 8'd255) begin
+                record_addr <= record_addr + 1;
+            end
+            else begin
+                recording <= 0;
+            end
+        end
+
+        if (!rec) begin
+            // set recording and record_addr to 0 while rec is low
+            recording <= 0;
+            record_addr <= 0;
+             
+            if (play) begin
+                playing <= 1;
+                
+                // while playing, if tick is high, 
+                // increase the play address by 1 or reset it to 0 if it 
+                // is greater than or equal to the bank's last register.
+                if (tick && playing) begin
+                    if (play_addr < 8'd255) begin
+                        play_addr <= play_addr + 1;
+                    end
+                    else begin
+                        play_addr <= 0;
+                    end
+                end
+            end
+        end
+    end
 
 endmodule
