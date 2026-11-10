@@ -7,7 +7,7 @@ module recorder(
     input [3:0] sample,
     output recording,
     output playing,
-    output reg [3:0] out
+    output [3:0] out
 );
     /*
     Records ADC samples into one of 4 memory banks, and plays them back.
@@ -47,16 +47,16 @@ module recorder(
     */
     //Do not modify above this line
 
-    reg bank0_we, bank1_we, bank2_we, bank3_we;
+    // Registers for individual memory banks' write enable inputs,
+    // read outputs, and last registers, and record and play address registers.
+    wire bank0_we, bank1_we, bank2_we, bank3_we;
     reg [3:0] bank0_out, bank1_out, bank2_out, bank3_out; 
     reg [7:0] bank0_last, bank1_last, bank2_last, bank3_last;
     reg [7:0] record_addr, play_addr;
+    reg [7:0] selected_last;
+    reg [3:0] selected_out;
 
     initial begin
-        bank0_we = 0;
-        bank1_we = 0;
-        bank2_we = 0;
-        bank3_we = 0;
         bank0_last = 0;
         bank1_last = 0;
         bank2_last = 0;
@@ -65,6 +65,47 @@ module recorder(
         play_addr = 0;
     end
 
+    // continous assignments for status signals / outputs
+    assign recording = rec && (record_addr < 8'd255);
+    assign playing = play && !rec;
+    assign out = selected_out;
+
+    // Decode the selected bank into a one-clock write-enable pulse.
+    // Only the selected memory receives a write when a recording tick occurs.
+    assign bank0_we = tick && recording && (bank == 2'd0);
+    assign bank1_we = tick && recording && (bank == 2'd1);
+    assign bank2_we = tick && recording && (bank == 2'd2);
+    assign bank3_we = tick && recording && (bank == 2'd3);
+
+    // Select the last recorded address and memory output for the current bank.
+    // This keeps the playback logic independent of which bank is selected.
+    always @(*) begin
+        case (bank)
+            2'd0: begin
+                selected_last = bank0_last;
+                selected_out = bank0_out;
+            end
+            2'd1: begin
+                selected_last = bank1_last;
+                selected_out = bank1_out;
+            end
+            2'd2: begin
+                selected_last = bank2_last;
+                selected_out = bank2_out;
+            end
+            2'd3: begin
+                selected_last = bank3_last;
+                selected_out = bank3_out;
+            end
+            default: begin
+                selected_last = 8'd0;
+                selected_out = 4'd0;
+            end
+        endcase
+    end
+
+    // Instantiate memory banks with unique registers for inputs/outputs
+    // Sharing the same record and play addresses, and sample data.
     memory mem0(
         .clk(clk),
         .we(bank0_we),
@@ -101,72 +142,40 @@ module recorder(
     always @(posedge clk) begin
         // recording takes priority over playback
         if (rec) begin
-            // set playing and play address to 0 while recording
-            playing <= 0;
+            // Reset playback while recording.
             play_addr <= 0;
 
-            // recording is high while rec is high and the bank is not full.
-            if (record_addr < 8'd255) begin
-                recording <= 1;
-            end
-            else begin
-                recording <= 0;
-            end
-
-            // while rec, if tick and recording are high, write sample to current bank 
-            // and set that bank's last register to the record address.
+            // Record the address of the newly written sample in the selected bank.
             if (tick && recording) begin
-                if (bank == 2'd0) begin
-                    bank0_we <= 1;
-                    bank0_last <= record_addr;
-                    out <= bank0_out;
-                end
-                if (bank == 2'd1) begin
-                    bank1_we <= 1;
-                    bank1_last <= record_addr;
-                    out <= bank1_out;
-                end
-                if (bank == 2'd2) begin
-                    bank2_we <= 1;
-                    bank2_last <= record_addr;
-                    out <= bank2_out;
-                end
-                if (bank == 2'd3) begin
-                    bank3_we <= 1;
-                    bank3_last <= record_addr;
-                    out <= bank3_out;
-                end
-            end
+                case (bank)
+                    2'd0: bank0_last <= record_addr;
+                    2'd1: bank1_last <= record_addr;
+                    2'd2: bank2_last <= record_addr;
+                    2'd3: bank3_last <= record_addr;
+                endcase
 
-            // while rec, if tick and recording are high, 
-            //increase the record address by 1, unless it is 255.
-            if (record_addr < 8'd255) begin
-                record_addr <= record_addr + 1;
-            end
-            else begin
-                recording <= 0;
+                // Advance to the next address only when a sample is written.
+                // The write enable is also high only on this tick, so this
+                // keeps recorded samples at consecutive memory addresses.
+                if (record_addr < 8'd255) record_addr <= record_addr + 1;
             end
         end
 
         if (!rec) begin
-            // set recording and record_addr to 0 while rec is low
-            recording <= 0;
+            // Reset the recording address while not recording.
             record_addr <= 0;
              
             if (play) begin
-                playing <= 1;
-                
-                // while playing, if tick is high, 
-                // increase the play address by 1 or reset it to 0 if it 
-                // is greater than or equal to the bank's last register.
                 if (tick && playing) begin
-                    if (play_addr < 8'd255) begin
-                        play_addr <= play_addr + 1;
-                    end
-                    else begin
-                        play_addr <= 0;
-                    end
+                    // increment play address until it reaches last register
+                    // of the current bank, then goes back to 0.
+                    if (play_addr < selected_last) play_addr <= play_addr + 1;
+                    else play_addr <= 0;
                 end
+            end
+            else begin
+                // Reset the play address while not playing.
+                play_addr <= 0;
             end
         end
     end

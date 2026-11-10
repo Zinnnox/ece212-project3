@@ -1,0 +1,21 @@
+[*] GTKWave display configuration for 'apio sim test/test_7_4_recorder_tb.v'
+[*] THIS FILE WAS GENERATED AUTOMATICALLY BY APIO.
+[*] DO NOT EDIT IT MANUALLY!
+[*] To customize this file, run 'apio sim test/test_7_4_recorder_tb.v'
+[*] and save the file from GTKWave.
+
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+
+[*]
+test_7_4_recorder_tb.bank[1:0]
+test_7_4_recorder_tb.clk
+test_7_4_recorder_tb.count[1:0]
+test_7_4_recorder_tb.out[3:0]
+test_7_4_recorder_tb.out_shown[3:0]
+test_7_4_recorder_tb.outfile[31:0]
+test_7_4_recorder_tb.play
+test_7_4_recorder_tb.playing
+test_7_4_recorder_tb.rec
+test_7_4_recorder_tb.recording
+test_7_4_recorder_tb.sample[3:0]
+test_7_4_recorder_tb.tick
