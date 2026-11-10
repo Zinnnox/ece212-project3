@@ -1,0 +1,21 @@
+[*] GTKWave display configuration for 'apio sim test/test_8_1_main_tb.v'
+[*] THIS FILE WAS GENERATED AUTOMATICALLY BY APIO.
+[*] DO NOT EDIT IT MANUALLY!
+[*] To customize this file, run 'apio sim test/test_8_1_main_tb.v'
+[*] and save the file from GTKWave.
+
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+
+[*]
+test_8_1_main_tb.btn[3:0]
+test_8_1_main_tb.clk
+test_8_1_main_tb.comp
+test_8_1_main_tb.cycle[31:0]
+test_8_1_main_tb.dac[4:0]
+test_8_1_main_tb.dac_sample[4:0]
+test_8_1_main_tb.data
+test_8_1_main_tb.outfile[31:0]
+test_8_1_main_tb.shift_clk
+test_8_1_main_tb.strobe
+test_8_1_main_tb.sw[7:0]
+test_8_1_main_tb.vin[31:0]

@@ -61,35 +61,54 @@ module main(
     tick tick0(.clk(clk), .tick(tick));
 
     // adc module
-    wire adc_start;
-    wire [3:0] adc_result;
-    assign adc_start = tick && !db_play;
+    wire adc0_start;
+    wire [4:0] adc0_dac;
+    wire [3:0] adc0_result;
+    assign adc0_start = tick && !db_play;
     adc adc0(
         .clk(clk),
-        .start(adc_start),
-        .comp(),
-        .dac(),
-        .result(adc_result)
+        .start(adc0_start),
+        .comp(comp),
+        .dac(adc0_dac),
+        .result(adc0_result)
     );
 
     // recorder module 
+    wire rec0_recording, rec0_playing;
+    wire [3:0] rec0_out;
     recorder rec0(
         .clk(clk),
         .tick(tick),
-        .rec(),
-        .play(),
+        .rec(db_rec),
+        .play(db_play),
         .bank(sw[1:0]),
-        .sample(adc_result),
-        .recording(),
-        .playing(),
-        .out()
+        .sample(adc0_result),
+        .recording(rec0_recording),
+        .playing(rec0_playing),
+        .out(rec0_out)
     );
 
-    // determine dac output, if playing then output the recorder's out, 
+    // led bar will display the adc's result during recording,
+    // and the recorder's out during playback.
+    // dac already has the correct value to display, so we can just use that.
+    reg [7:0] led_in;
+    led_bar ledbar0(.in(led_in), .led(led));
+
+    // determine dac and led output, if playing then output the recorder's out, 
     // otherwise output the adc's dac value.
     always @(*) begin
-        if (rec0.playing) dac = {rec0.out, 1'b0};
-        else dac = adc0.dac;
+        if (rec0_playing) begin
+            dac = {rec0_out, 1'b0};
+            led_in = rec0_out;
+        end
+        else begin
+            dac = adc0_dac;
+            led_in = adc0_result;
+        end
     end
-    
+
+    // sevseg_in is the bank number, and sevseg_dp is high when recording.
+    assign sevseg_in = {2'b00, sw[1:0]};
+    assign sevseg_dp = rec0_recording;
+
 endmodule

@@ -1,0 +1,16 @@
+[*] GTKWave display configuration for 'apio sim test/test_6_1_memory_tb.v'
+[*] THIS FILE WAS GENERATED AUTOMATICALLY BY APIO.
+[*] DO NOT EDIT IT MANUALLY!
+[*] To customize this file, run 'apio sim test/test_6_1_memory_tb.v'
+[*] and save the file from GTKWave.
+
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+
+[*]
+test_6_1_memory_tb.clk
+test_6_1_memory_tb.outfile[31:0]
+test_6_1_memory_tb.raddr[7:0]
+test_6_1_memory_tb.rdata[3:0]
+test_6_1_memory_tb.waddr[7:0]
+test_6_1_memory_tb.wdata[3:0]
+test_6_1_memory_tb.we

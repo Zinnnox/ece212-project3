@@ -1,0 +1,19 @@
+[*] GTKWave display configuration for 'apio sim test/test_4_3_adc_ctrl_tb.v'
+[*] THIS FILE WAS GENERATED AUTOMATICALLY BY APIO.
+[*] DO NOT EDIT IT MANUALLY!
+[*] To customize this file, run 'apio sim test/test_4_3_adc_ctrl_tb.v'
+[*] and save the file from GTKWave.
+
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+
+[*]
+test_4_3_adc_ctrl_tb.clk
+test_4_3_adc_ctrl_tb.clr
+test_4_3_adc_ctrl_tb.comp
+test_4_3_adc_ctrl_tb.dac[4:0]
+test_4_3_adc_ctrl_tb.inc
+test_4_3_adc_ctrl_tb.load
+test_4_3_adc_ctrl_tb.max
+test_4_3_adc_ctrl_tb.outfile[31:0]
+test_4_3_adc_ctrl_tb.start
+test_4_3_adc_ctrl_tb.vin[31:0]
