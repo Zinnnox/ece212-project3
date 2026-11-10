@@ -53,6 +53,7 @@ module recorder(
     reg [3:0] bank0_out, bank1_out, bank2_out, bank3_out; 
     reg [7:0] bank0_last, bank1_last, bank2_last, bank3_last;
     reg [7:0] record_addr, play_addr;
+    reg record_full;
     reg [7:0] selected_last;
     reg [3:0] selected_out;
 
@@ -63,10 +64,11 @@ module recorder(
         bank3_last = 0;
         record_addr = 0;
         play_addr = 0;
+        record_full = 0;
     end
 
     // continous assignments for status signals / outputs
-    assign recording = rec && (record_addr < 8'd255);
+    assign recording = rec && !record_full;
     assign playing = play && !rec;
     assign out = selected_out;
 
@@ -157,13 +159,17 @@ module recorder(
                 // Advance to the next address only when a sample is written.
                 // The write enable is also high only on this tick, so this
                 // keeps recorded samples at consecutive memory addresses.
-                if (record_addr < 8'd255) record_addr <= record_addr + 1;
+                if (record_addr == 8'd255)
+                    record_full <= 1;
+                else
+                    record_addr <= record_addr + 1;
             end
         end
 
         if (!rec) begin
             // Reset the recording address while not recording.
             record_addr <= 0;
+            record_full <= 0;
              
             if (play) begin
                 if (tick && playing) begin
